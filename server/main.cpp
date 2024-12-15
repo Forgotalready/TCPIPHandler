@@ -25,15 +25,15 @@ int accept_client(int serverSocket)
     return clientSocket;
 }
 
-void process_client(int* clientSocket)
+void process_client(int& clientSocket)
 {
     char buffer[1024];
-    int byteSize = recv(*clientSocket, buffer, sizeof(buffer), 0);
+    int byteSize = recv(clientSocket, buffer, sizeof(buffer), 0);
     if(byteSize == 0)
     {
         puts("Client disconnect");
-        close(*clientSocket);
-        *clientSocket = -1;
+        close(clientSocket);
+        clientSocket = -1;
     }
     if(byteSize > 0)
     {
@@ -42,12 +42,12 @@ void process_client(int* clientSocket)
     }
 }
 
-void check_new_connection(int serverSocket, int* clientSocket)
+void check_new_connection(int serverSocket, int& clientSocket)
 {
     int newConnection = accept_client(serverSocket);
-    if(*(clientSocket) == -1)
+    if(clientSocket == -1)
     {
-        *clientSocket = newConnection;
+        clientSocket = newConnection;
     }
     else
     {
@@ -111,12 +111,12 @@ int main()
 
         if(FD_ISSET(serverSocket, &readDescriptors))
         {
-            check_new_connection(serverSocket, &clientSocket);
+            check_new_connection(serverSocket, clientSocket);
             continue;
         }
         if(clientSocket != -1 && FD_ISSET(clientSocket, &readDescriptors))
         {
-            process_client(&clientSocket);
+            process_client(clientSocket);
             continue;
         }
     }
